@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Каталог фільмів</title>
+
+    <!--
+      Значок вкладки. Без нього браузер усе одно піде по /favicon.ico
+      і отримає 404 — зайва червона стрічка в консолі на кожному запуску.
+
+      Тут це той самий знак, що й у шапці, вписаний прямо в атрибут
+      через data:-адресу: окремий файл заради 200 байтів не потрібен.
+      Символ # у кольорі має бути записаний як %23 — інакше браузер
+      прочитає решту адреси як якір.
+    -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 4L3 28L15 16Z' fill='%237b6ef6'/%3E%3Cpath d='M14 4L14 28L26 16Z' fill='%234bb7fd'/%3E%3C/svg%3E"
+    />
+
+    <meta
+      name="description"
+      content="Каталог фільмів і серіалів на даних The Movie Database."
+    />
+
+    <!--
+      Два шрифти, і це не примха.
+
+      У макеті все набрано Poppins — але Poppins не має кириличних літер
+      (у Google Fonts у нього лише latin, latin-ext і devanagari). Тому
+      «Кінозал», набране самим Poppins, малювалося б системним шрифтом,
+      і застосунок виглядав би зовсім не так, як макет.
+
+      Браузер підбирає шрифт не на весь текст, а на КОЖЕН символ окремо:
+      для латиниці й цифр візьме Poppins (як у макеті), а для кирилиці
+      піде далі по списку — до Montserrat, найближчого до Poppins
+      геометричного гротеску, який кирилицю має.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Montserrat:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!--
+      Єдиний елемент у розмітці. React заповнює його вміст сам —
+      звідси й назва «застосунок на одній сторінці»: сторінка одна,
+      а її вміст перемальовується без перезавантаження.
+    -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

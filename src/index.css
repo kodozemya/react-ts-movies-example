@@ -1,0 +1,716 @@
+/*
+  Стилі за макетом «Movie Listing Web App», сторінка Web App.
+  Назви змінних збігаються з назвами стилів у Figma (Primary/400, Grey/50…700,
+  Warning/500, Poppins) — так їх легше звіряти з макетом.
+*/
+
+:root {
+  /* Кольори з макета */
+  --color-bg: #10152a;
+  --color-navbar: rgb(18 24 41 / 80%); /* Navbar, BG Blur */
+  --color-panel: rgb(32 40 62 / 80%); /* панель картки й шапка деталей */
+  --color-border: #323b54; /* Grey/700 */
+  --color-primary: #7b6ef6; /* Primary/400 */
+  --color-primary-50: #ebe9fe; /* Primary/50 — текст активної вкладки */
+  --color-primary-200: #beb7fb; /* Primary/200 — хлібні крихти */
+  --color-primary-300: #9c92f8; /* Primary/300 — посилання в тексті */
+  --color-secondary: #4bb7fd; /* Secondary/400 */
+  --color-warning: #ffad49; /* Warning/500 — оцінка */
+  --color-danger: #ff6b6b;
+  --color-text: #ebeef5; /* Grey/50 */
+  --color-text-value: #c3c8d4; /* Grey/100 — значення в парах «підпис — значення» */
+  --color-text-muted: #a8aebf; /* Grey/200 — посилання навбару */
+  --color-text-dim: #8e95a9; /* Grey/300 */
+  --color-text-faint: #767e94; /* Grey/400 */
+  --color-placeholder: #475069; /* Grey/600 — текст-підказка в полі пошуку */
+
+  /* Розміри з макета */
+  --radius-lg: 24px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --space: 16px;
+  --content-width: 1200px; /* 1440 мінус поля по 120 */
+  --card-width: 282px;
+
+  /*
+    Poppins — шрифт макета, але кирилиці в ньому немає (у Google Fonts
+    доступні лише latin, latin-ext і devanagari). Браузер підбирає шрифт
+    посимвольно, тож латиниця й цифри дістануться Poppins, як у макеті,
+    а українські літери — Montserrat, найближчому геометричному гротеску
+    з кирилицею. Деталі — у index.html.
+  */
+  --font: "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  /*
+    Фон макета — не суцільний колір, а два світляні плями: бузкова вгорі
+    праворуч і холодна знизу ліворуч. У Figma це растровий шар; тут ті самі
+    плями зроблено радіальними градієнтами, щоб не тягнути картинку на 3000px.
+    background-attachment: fixed — щоб плями не «їхали» при прокручуванні.
+  */
+  background-image:
+    radial-gradient(60% 50% at 85% 0%, rgb(123 110 246 / 22%), transparent 70%),
+    radial-gradient(50% 40% at 10% 100%, rgb(75 183 253 / 12%), transparent 70%);
+  background-attachment: fixed;
+  color: var(--color-text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/*
+  Ширина рахується так, щоб на екрані 1440 контент став рівно там, де в макеті.
+
+  У макеті поля по 120px, отже контент — 1200px. Але `padding` віднімається
+  від `max-width` (у нас box-sizing: border-box), тож max-width: 1200px дав би
+  контент 1152 — і всі чотири картки поїхали б на 12px вужче за макет.
+  Тому до ширини контенту додаємо самі поля.
+
+  Перевірка: на 1440 контейнер 1248, поля по краях (1440-1248)/2 = 96,
+  плюс padding 24 — контент починається на 120px. Як у макеті.
+*/
+.container {
+  width: 100%;
+  max-width: calc(var(--content-width) + 48px);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Фокус видно завжди — без нього сторінкою неможливо користуватися з клавіатури. */
+:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+
+/* ---------- Шапка ---------- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-navbar);
+  backdrop-filter: blur(20px);
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space);
+  height: 80px;
+}
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+
+.header__link {
+  padding: 12px var(--space);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  text-decoration: none;
+}
+
+.header__link:hover,
+.header__link--active {
+  color: var(--color-text);
+}
+
+/* ---------- Титул ---------- */
+
+/*
+  Нижній відступ належить самому блоку, а не вкладкам усередині нього.
+  Раніше проміжок до заголовка розділу давало поле margin-bottom вкладок —
+  і щойно вкладки ховалися (а під час пошуку вони ховаються), заголовок
+  «Пошук: …» злипався з полем пошуку.
+
+  Правило: **відступ між блоками задає блок, а не його випадковий
+  останній нащадок.**
+*/
+/*
+  padding-block, а не padding.
+
+  На цьому блоці два класи: .container дає поля з боків (0 24px), .hero —
+  відступи згори й знизу. Скорочений запис `padding: 80px 0 32px` задає
+  ВСІ чотири сторони, тобто мовчки обнуляє бічні поля контейнера — і на
+  телефоні заголовок упирався в самий край екрана.
+
+  padding-block чіпає лише верх і низ, тож поля з боків лишаються за
+  .container. Кожен клас відповідає за своє.
+*/
+.hero {
+  /*
+    Відступи по вертикалі з макета: титул починається на 160px, навбар
+    заввишки 80 → згори 80. Знизу 24 — стільки між вкладками (кінець 528)
+    і заголовком розділу (552).
+  */
+  padding-block: 80px 24px;
+}
+
+.hero__title {
+  margin: 0 0 var(--space);
+  /* Heading/H1 з макета: 64/80, letter-spacing -1.28px. */
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.hero__text {
+  max-width: 588px; /* ширина абзацу в макеті */
+  margin: 0;
+  color: var(--color-text-dim);
+}
+
+.hero__text a {
+  color: var(--color-primary-300); /* акцент усередині абзацу, як у макеті */
+}
+
+/* ---------- Поле пошуку ---------- */
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  width: 344px; /* ширина поля в макеті */
+  max-width: 100%;
+  /*
+    Висота задана явно, бо в макеті вона рівно 64. Якби її складали
+    з полів і рядка тексту, до них додалася б ще рамка в 1px з кожного
+    боку — і поле вийшло б на 2px вище за макет.
+  */
+  height: 64px;
+  /* Абзац опису закінчується на 304px, поле починається на 328 → 24. */
+  margin: 24px 0 0;
+  padding: 12px var(--space);
+  background: rgb(0 0 0 / 10%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.search__icon {
+  flex-shrink: 0;
+  color: var(--color-placeholder);
+}
+
+/*
+  Поле в макеті — 64px заввишки: padding 12 згори й знизу плюс 40px
+  на сам рядок вводу. Тому висоту задає саме поле, а не розмір тексту.
+*/
+.search__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.search__input::placeholder {
+  /* Caption із макета: 14/16, Grey/600. */
+  color: var(--color-placeholder);
+  font-size: 14px;
+  line-height: 16px;
+}
+
+/*
+  Обведення малює контейнер, а не саме поле: рамка має обійти
+  і поле, і іконку, як один елемент.
+*/
+.search:focus-within {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+
+.search__input:focus-visible {
+  outline: none;
+}
+
+/* ---------- Вкладки ---------- */
+
+.tabs {
+  display: inline-flex;
+  gap: 0;
+  /* Поле пошуку закінчується на 392px, вкладки починаються на 472 → 80. */
+  margin: 80px 0 0;
+  padding: 8px;
+  background: rgb(0 0 0 / 20%);
+  backdrop-filter: blur(40px);
+  border-radius: var(--radius);
+}
+
+.tab {
+  padding: 8px 32px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-dim);
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tab--active,
+.tab--active:hover {
+  background: var(--color-primary);
+  color: var(--color-primary-50);
+}
+
+/* ---------- Заголовок розділу ---------- */
+
+/*
+  Heading/H3 із макета: 32/40, letter-spacing -2% (-0.64px).
+
+  Колір тут навмисно приглушений (Grey/400), а не білий: заголовок розділу
+  в макеті — підпис до сітки, а не другий титул сторінки. Білим лишається
+  сам титул «Кінозал», щоб він не змагався за увагу з підписом.
+*/
+.section-title {
+  margin: 0 0 24px;
+  color: var(--color-text-faint);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Кількість у макеті набрана дрібнішим і без насиченості: 16/24, Regular. */
+.section-title__count {
+  margin-left: 8px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ---------- Сітка карток ---------- */
+
+.grid {
+  display: grid;
+  /*
+    У макеті чотири колонки по 282px із проміжком 24px. auto-fill + minmax
+    дають ту саму сітку, але вона сама перебудовується на вужчому екрані —
+    без жодного медіазапиту.
+
+    min(282px, 100%) — не прикраса, а лікування горизонтальної прокрутки.
+    Голий minmax(282px, 1fr) означає «колонка ніколи не вужча за 282»: на
+    екрані 320px контейнер має всього 272px, колонка лишається 282 —
+    і сітка вилазить за край сторінки. З min() колонка на таких екранах
+    просто звужується до ширини контейнера.
+  */
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--card-width), 100%), 1fr));
+  /* У макеті рядки стоять щільніше за колонки: 20px проти 24. */
+  gap: 20px 24px;
+  list-style: none;
+  margin: 0 0 80px;
+  padding: 0;
+}
+
+.card {
+  background: var(--color-panel);
+  backdrop-filter: blur(40px);
+  border-radius: var(--radius);
+  transition: transform 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+/*
+  Розкладка картки з макета, знизу вгору:
+    8 (поле згори) + 400 (постер) + 16 (проміжок) + 40 (назва з полями 8)
+    + 16 (поле знизу) = 480 — рівно висота картки в макеті.
+
+  Поле знизу більше за поле згори (16 проти 8) — це не помилка макета,
+  а звична для карток «вага»: підпис не має здаватися приклеєним до низу.
+*/
+.card__link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  padding: 8px 8px var(--space);
+  color: inherit;
+  text-decoration: none;
+}
+
+.card__poster {
+  position: relative;
+  aspect-ratio: 266 / 400; /* пропорції постера в макеті */
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 4%);
+  overflow: hidden;
+}
+
+.card__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card__poster-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--space);
+  color: var(--color-text-faint);
+  font-size: 14px;
+  text-align: center;
+}
+
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgb(0 0 0 / 65%);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-sm);
+  color: var(--color-warning);
+}
+
+/* Зірочка не має стискатися, коли оцінка стоїть у вузькій плашці. */
+.rating svg {
+  flex-shrink: 0;
+}
+
+.card__rating {
+  position: absolute;
+  top: 10px;
+  left: 8px;
+  height: 40px; /* у макеті плашка на картці вища за таку саму на сторінці деталей */
+  margin: 0;
+}
+
+/*
+  Назва — рівно один рядок, як у макеті.
+
+  Річ не в акуратності: у макеті назви короткі й англійські, а з TMDB
+  приходить «Людина-павук: Додому шляху немає». Якби такий рядок переносився,
+  та картка стала б на 24px вищою за сусідні — і рівний ряд поламався б.
+
+  Обрізаний текст лишається повним у розмітці, тож читалка з екрана
+  прочитає назву цілком.
+*/
+.card__title {
+  margin: 0;
+  padding: 8px;
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Сторінка деталей ---------- */
+
+.details {
+  padding-bottom: 80px;
+}
+
+.details__backdrop {
+  position: relative;
+  margin-top: 40px;
+}
+
+.details__backdrop-image {
+  width: 100%;
+  aspect-ratio: 1200 / 480;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+/*
+  Панель із назвою «висить» на нижньому краї банера й трохи виступає
+  за нього — саме так вона стоїть у макеті.
+*/
+.details__plate {
+  position: relative;
+  max-width: 560px;
+  margin: 0 0 0 80px;
+  padding: 40px;
+  background: var(--color-panel);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius-lg);
+}
+
+/*
+  Наїзд на банер — окремий клас, а не частина .details__plate.
+
+  Причина проста: backdrop_path у TMDB часто дорівнює null, і тоді банера
+  над панеллю немає взагалі. Від'ємний відступ у такому разі тягнув би
+  панель на 72px вгору — просто в порожнечу, під липку шапку.
+  Тому зсув вмикається лише тоді, коли є на що заходити.
+
+  Банер закінчується на 600px, панель починається на 528 → заходить на 72.
+*/
+.details__plate--overlap {
+  margin-top: -72px;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.breadcrumbs a {
+  color: var(--color-primary-200);
+  text-decoration: none;
+}
+
+.breadcrumbs__divider {
+  color: #8996a1;
+}
+
+.details__title {
+  margin: 0;
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/*
+  У макеті нижній блок вужчий за банер: 80 (відступ) + 480 (постер)
+  + 80 (проміжок) + 480 (опис) + 80 (відступ) = 1200 — рівно ширина банера.
+  Тому постер стоїть не під лівим краєм банера, а на одній вертикалі
+  з панеллю назви, яка теж зміщена на 80.
+*/
+.details__body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 80px;
+  margin-top: 80px;
+  padding-inline: 80px;
+}
+
+.details__poster {
+  width: 480px;
+  max-width: 100%;
+  border-radius: var(--radius-lg);
+}
+
+.details__info {
+  flex: 1;
+  min-width: 280px;
+  max-width: 480px;
+}
+
+/* Heading/H4 з макета: 24/32, Bold, letter-spacing -1.5% (-0.36px). */
+.details__tagline {
+  margin: 0 0 24px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Body/Large з макета: 20/32, Grey/300. */
+.details__overview {
+  margin: 0 0 24px;
+  color: var(--color-text-dim);
+  font-size: 20px;
+  line-height: 32px;
+}
+
+/*
+  Пари «підпис — значення» (Тип, Дата виходу, Тривалість, Жанри).
+  Це <dl>: саме він описує пару «термін → опис», а не два сусідні <p>.
+*/
+.facts {
+  margin: 24px 0 0;
+}
+
+/*
+  Проміжок 24px стоїть між парами, а не перед першою з них — інакше
+  до відступу самого списку додався б ще один, і «Тип» відірвався б
+  від оцінки вдвічі далі, ніж у макеті.
+*/
+.facts__term {
+  margin: 24px 0 0;
+  color: var(--color-text-faint);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.facts__term:first-of-type {
+  margin-top: 0;
+}
+
+/* Body/Large: 20/32, Grey/100 — трохи тьмяніший за титул, як у макеті. */
+.facts__value {
+  margin: 0;
+  color: var(--color-text-value);
+  font-size: 20px;
+  line-height: 32px;
+}
+
+/* ---------- Повідомлення про стан ---------- */
+
+.status {
+  padding: 32px;
+  margin-bottom: 80px;
+  background: var(--color-panel);
+  backdrop-filter: blur(40px);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.status--error {
+  color: var(--color-danger);
+}
+
+/*
+  На головній повідомлення стоїть під заголовком розділу, і власний відступ
+  згори йому не потрібен. А коли воно — весь вміст сторінки (деталі, яких
+  немає; невідома адреса), без відступу воно злипається з шапкою.
+  Тому відступ задає сторінка, а не саме повідомлення.
+*/
+.page-message {
+  padding-top: 40px;
+}
+
+/* ---------- Вузькі екрани ---------- */
+
+/*
+  Сітка карток перебудовується сама (auto-fill + minmax), тому медіазапити
+  потрібні лише там, де в макеті стоять великі фіксовані числа: відступ
+  панелі на 80px і проміжок у 80px між постером і описом. На телефоні
+  такі числа з'їдають екран.
+*/
+@media (max-width: 900px) {
+  .details__body {
+    gap: 40px;
+    margin-top: 40px;
+    /* Відступ у 80px з боків має сенс лише на широкому екрані. */
+    padding-inline: 0;
+  }
+
+  .details__plate {
+    margin-left: 24px;
+    padding: 24px;
+  }
+
+  .details__plate--overlap {
+    margin-top: -56px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding-block: 40px 24px;
+  }
+
+  .header__inner {
+    height: 64px;
+  }
+
+  .header__link {
+    padding: 8px 12px;
+  }
+
+  /*
+    Три вкладки по 32px відступу з боків на екран 360px не влазять.
+    Розтягуємо їх на всю ширину й ділимо порівну.
+  */
+  .tabs {
+    display: flex;
+    width: 100%;
+    margin-top: 32px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px 12px;
+  }
+
+  .details__plate {
+    /*
+      На телефоні панель стає звичайним блоком під банером: «висіти»
+      на його краю їй просто немає де.
+    */
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .details__plate--overlap {
+    margin-top: -32px;
+  }
+
+  .details__backdrop-image {
+    border-radius: var(--radius);
+  }
+}
+
+/*
+  Користувач міг попросити систему прибрати анімації — так роблять, коли
+  рух викликає нудоту або відволікає. Це не побажання, а налаштування
+  доступності, і його поважають.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}
