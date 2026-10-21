@@ -72,9 +72,17 @@ export default function HomePage() {
   */
   const debouncedQuery = useDebounced(query);
 
+  /*
+    Enter або кнопка «Знайти» не чекають на дебаунс: форма вже перевірила
+    текст, тож він іде в запит одразу. Щойно людина друкує далі, query
+    відходить від надісланого, і знову працює дебаунс.
+  */
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const searchQuery = query.trim() === submittedQuery ? submittedQuery : debouncedQuery;
+
   const { items, isLoading, error, isSearching } = useMediaList(
     activeTab.id,
-    debouncedQuery,
+    searchQuery,
   );
 
   return (
@@ -100,11 +108,15 @@ export default function HomePage() {
         </p>
 
         {/*
-          setQuery підходить під тип пропа напряму: сеттер із useState
-          має сигнатуру (value: T) => void. Обгортка
+          setQuery і setSubmittedQuery підходять під типи пропсів напряму:
+          сеттер із useState приймає значення типу T. Обгортка
           (value) => setQuery(value) нічого не додала б.
         */}
-        <SearchField value={query} onChange={setQuery} />
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          onSubmit={setSubmittedQuery}
+        />
 
         {/*
           Вкладки ховаємо під час пошуку: результати пошуку не належать
@@ -118,7 +130,7 @@ export default function HomePage() {
 
       <section className="container">
         <h2 className="section-title">
-          {isSearching ? `Пошук: «${debouncedQuery}»` : activeTab.label}
+          {isSearching ? `Пошук: «${searchQuery.trim()}»` : activeTab.label}
           {/*
             Кількість показуємо лише коли є що рахувати — «Усі (0)»
             під час завантаження виглядає як порожній каталог.
@@ -150,7 +162,7 @@ export default function HomePage() {
         {!isLoading && !error && items.length === 0 && (
           <StatusMessage>
             {isSearching
-              ? `За запитом «${debouncedQuery}» нічого не знайшлося. Спробуй іншу назву.`
+              ? `За запитом «${searchQuery.trim()}» нічого не знайшлося. Спробуй іншу назву.`
               : "Тут поки порожньо."}
           </StatusMessage>
         )}

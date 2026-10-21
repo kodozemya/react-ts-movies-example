@@ -5,6 +5,8 @@
 */
 
 :root {
+  color-scheme: dark;
+
   /* Кольори з макета */
   --color-bg: #10152a;
   --color-navbar: rgb(18 24 41 / 80%); /* Navbar, BG Blur */
@@ -40,6 +42,29 @@
     з кирилицею. Деталі — у index.html.
   */
   --font: "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/*
+  Світла тема. Макет лише темний, тому тут перевизначено тільки кольори:
+  розміри, шрифти й розкладка спільні. Вмикає її атрибут data-theme
+  на <html>, який ставить ThemeProvider (src/context/ThemeContext.tsx).
+*/
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f4f5fa;
+  --color-navbar: rgb(255 255 255 / 80%);
+  --color-panel: rgb(255 255 255 / 88%);
+  --color-border: #d5d9e3;
+  --color-primary-200: #5b4fd9;
+  --color-primary-300: #5b4fd9;
+  --color-secondary: #1f7fc2;
+  --color-danger: #c62f2f;
+  --color-text: #10152a;
+  --color-text-value: #323b54;
+  --color-text-muted: #475069;
+  --color-text-dim: #565e75;
+  --color-text-faint: #646b80;
+  --color-placeholder: #6b7288;
 }
 
 *,
@@ -153,6 +178,24 @@ img {
   color: var(--color-text);
 }
 
+.header__theme {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.header__theme:hover,
+.header__theme[aria-pressed="true"] {
+  color: var(--color-text);
+}
+
 /* ---------- Титул ---------- */
 
 /*
@@ -205,6 +248,11 @@ img {
 
 /* ---------- Поле пошуку ---------- */
 
+/* Відступ згори дає форма: під полем ще може стояти текст помилки. */
+.search-form {
+  margin-top: 24px;
+}
+
 .search {
   display: flex;
   align-items: center;
@@ -217,8 +265,8 @@ img {
     боку — і поле вийшло б на 2px вище за макет.
   */
   height: 64px;
-  /* Абзац опису закінчується на 304px, поле починається на 328 → 24. */
-  margin: 24px 0 0;
+  /* Абзац опису закінчується на 304px, поле починається на 328 → 24 (у .search-form). */
+  margin: 0;
   padding: 12px var(--space);
   background: rgb(0 0 0 / 10%);
   border: 1px solid var(--color-border);
@@ -262,6 +310,35 @@ img {
 
 .search__input:focus-visible {
   outline: none;
+}
+
+/*
+  Кнопки «Знайти» в макеті немає, але без неї форму можна надіслати
+  лише клавішею Enter, а про це знають не всі. Тому вона тут, і тиха:
+  колір підказки, без заливки, щоб поле лишалося схожим на макет.
+*/
+.search__button {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-primary-300);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.search__button:hover {
+  background: rgb(123 110 246 / 12%);
+}
+
+.search__error {
+  margin: 8px 0 0;
+  color: var(--color-danger);
+  font-size: 14px;
+  line-height: 20px;
 }
 
 /* ---------- Вкладки ---------- */
@@ -660,6 +737,11 @@ img {
 
   .header__link {
     padding: 8px 12px;
+  }
+
+  /* Логотип, два посилання й кнопка теми мають влізти в 320px. */
+  .header__nav {
+    gap: 4px;
   }
 
   /*
